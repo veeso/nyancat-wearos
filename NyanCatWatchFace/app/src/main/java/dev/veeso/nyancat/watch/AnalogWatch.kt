@@ -12,7 +12,9 @@ import kotlin.math.sin
 import dev.veeso.nyancat.watch.analog.AnalogWatchConfiguration
 
 private const val HOUR_STROKE_WIDTH = 8f
-private const val MINUTE_STROKE_WIDTH = 8f
+private const val HOUR_BORDER_STROKE_WIDTH = HOUR_STROKE_WIDTH + 8f
+private const val MINUTE_STROKE_WIDTH = HOUR_STROKE_WIDTH
+private const val MINUTE_BORDER_STROKE_WIDTH = MINUTE_STROKE_WIDTH + 6f
 private const val SECOND_TICK_STROKE_WIDTH = 2f
 private const val SECOND_BACK_TICK_STROKE_WIDTH = 4f
 private const val SHADOW_RADIUS = 6f
@@ -33,27 +35,45 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
     private var hourHandLength: Float = 0F
 
     private var watchHandColor: Int = 0
-    private var minorTicksColor: Int = 0
+    private var watchHandBorderColor: Int = 0
+    private var ticksColor: Int = 0
+    private var minorTicksColor: List<Int>
     private var watchHandHighlightColor: Int = 0
     private var watchHandShadowColor: Int = 0
 
     private lateinit var hourPaint: Paint
+    private lateinit var hourBorderPaint: Paint
     private lateinit var minutePaint: Paint
+    private lateinit var minuteBorderPaint: Paint
     private lateinit var secondPaint: Paint
     private lateinit var secondBackPaint: Paint
+    private lateinit var secondBorderPaint: Paint
+    private lateinit var secondBackBorderPaint: Paint
     private lateinit var tickAndCirclePaint: Paint
+    private lateinit var circleBorderPaint: Paint
     private lateinit var minorTickPaint: Paint
     private lateinit var hourTextPaint: Paint
+    private lateinit var hourBorderTextPaint: Paint
 
     init {
         this.configuration = configuration
 
+        watchHandColor = Color.WHITE
+        watchHandBorderColor = Color.BLACK
+        minorTicksColor = listOf(
+            Color.rgb(252, 2, 4),
+            Color.rgb(252, 152, 4),
+            Color.rgb(252, 254, 4),
+            Color.rgb(52, 254, 4),
+            // Color.rgb(4, 150, 252),
+            Color.rgb(101, 50, 252),
+        )
+        ticksColor = Color.rgb(252, 2, 4)
+
         Palette.from(background).generate {
             it?.let {
                 watchHandHighlightColor = it.getVibrantColor(Color.RED)
-                watchHandColor = it.getLightVibrantColor(Color.WHITE)
                 watchHandShadowColor = it.getDarkMutedColor(Color.BLACK)
-                minorTicksColor = it.getLightVibrantColor(Color.GRAY)
                 onAmbientModeChanged(false)
             }
         }
@@ -92,6 +112,13 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
                     hour,
                     centerX + textX,
                     centerY + textY,
+                    hourBorderTextPaint
+                )
+
+                canvas.drawText(
+                    hour,
+                    centerX + textX,
+                    centerY + textY,
                     hourTextPaint
                 )
             }
@@ -107,6 +134,8 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
                 val innerY = (-cos(tickRot.toDouble())).toFloat() * innerTickRadius
                 val outerX = sin(tickRot.toDouble()).toFloat() * outerTickRadius
                 val outerY = (-cos(tickRot.toDouble())).toFloat() * outerTickRadius
+
+                minorTickPaint.color = minorTicksColor[tickIndex % 5]
 
                 canvas.drawLine(
                     centerX + innerX, centerY + innerY,
@@ -135,6 +164,15 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
         canvas.save()
 
         canvas.rotate(hoursRotation, centerX, centerY)
+
+        // hour
+        canvas.drawLine(
+            centerX,
+            centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
+            centerX,
+            centerY - hourHandLength,
+            hourBorderPaint
+        )
         canvas.drawLine(
             centerX,
             centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
@@ -144,6 +182,15 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
         )
 
         canvas.rotate(minutesRotation - hoursRotation, centerX, centerY)
+
+        // minute
+        canvas.drawLine(
+            centerX,
+            centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
+            centerX,
+            centerY - minuteHandLength,
+            minuteBorderPaint
+        )
         canvas.drawLine(
             centerX,
             centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
@@ -158,6 +205,14 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
          */
         if (!ambientMode && configuration.showSecondsHand) {
             canvas.rotate(secondsRotation - minutesRotation, centerX, centerY)
+
+            canvas.drawLine(
+                centerX,
+                centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
+                centerX,
+                centerY - secondHandLength,
+                secondBorderPaint
+            )
             canvas.drawLine(
                 centerX,
                 centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
@@ -166,6 +221,14 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
                 secondPaint
             )
 
+            // back
+            canvas.drawLine(
+                centerX,
+                centerY + CENTER_GAP_AND_CIRCLE_RADIUS,
+                centerX,
+                centerY + secondBackHandLength,
+                secondBackBorderPaint
+            )
             canvas.drawLine(
                 centerX,
                 centerY + CENTER_GAP_AND_CIRCLE_RADIUS,
@@ -174,6 +237,13 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
                 secondBackPaint
             )
 
+            // circle
+            canvas.drawCircle(
+                centerX,
+                centerY,
+                CENTER_GAP_AND_CIRCLE_RADIUS * 2,
+                secondBorderPaint
+            )
             canvas.drawCircle(
                 centerX,
                 centerY,
@@ -203,7 +273,19 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
             color = watchHandColor
             strokeWidth = HOUR_STROKE_WIDTH
             isAntiAlias = true
-            strokeCap = Paint.Cap.ROUND
+            strokeCap = Paint.Cap.SQUARE
+            style = Paint.Style.FILL
+            setShadowLayer(
+                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
+            )
+        }
+
+        hourBorderPaint = Paint().apply {
+            color = watchHandBorderColor
+            strokeWidth = HOUR_BORDER_STROKE_WIDTH
+            isAntiAlias = true
+            strokeCap = Paint.Cap.SQUARE
+            style = Paint.Style.STROKE
             setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
             )
@@ -213,7 +295,18 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
             color = watchHandColor
             strokeWidth = MINUTE_STROKE_WIDTH
             isAntiAlias = true
-            strokeCap = Paint.Cap.ROUND
+            strokeCap = Paint.Cap.SQUARE
+            setShadowLayer(
+                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
+            )
+        }
+
+        minuteBorderPaint = Paint().apply {
+            color = watchHandBorderColor
+            strokeWidth = MINUTE_BORDER_STROKE_WIDTH
+            isAntiAlias = true
+            strokeCap = Paint.Cap.SQUARE
+            style = Paint.Style.STROKE
             setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
             )
@@ -223,7 +316,19 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
             color = watchHandHighlightColor
             strokeWidth = SECOND_TICK_STROKE_WIDTH
             isAntiAlias = true
-            strokeCap = Paint.Cap.ROUND
+            strokeCap = Paint.Cap.SQUARE
+            style = Paint.Style.FILL
+            setShadowLayer(
+                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
+            )
+        }
+
+        secondBorderPaint = Paint().apply {
+            color = Color.BLACK
+            strokeWidth = SECOND_TICK_STROKE_WIDTH + 4f
+            isAntiAlias = true
+            strokeCap = Paint.Cap.SQUARE
+            style = Paint.Style.STROKE
             setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
             )
@@ -233,14 +338,26 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
             color = watchHandHighlightColor
             strokeWidth = SECOND_BACK_TICK_STROKE_WIDTH
             isAntiAlias = true
-            strokeCap = Paint.Cap.ROUND
+            strokeCap = Paint.Cap.SQUARE
+            style = Paint.Style.FILL
+            setShadowLayer(
+                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
+            )
+        }
+
+        secondBackBorderPaint = Paint().apply {
+            color = Color.BLACK
+            strokeWidth = SECOND_BACK_TICK_STROKE_WIDTH + 4f
+            isAntiAlias = true
+            strokeCap = Paint.Cap.SQUARE
+            style = Paint.Style.STROKE
             setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
             )
         }
 
         tickAndCirclePaint = Paint().apply {
-            color = watchHandColor
+            color = ticksColor
             strokeWidth = SECOND_TICK_STROKE_WIDTH
             isAntiAlias = true
             style = Paint.Style.STROKE
@@ -250,7 +367,7 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
         }
 
         minorTickPaint = Paint().apply {
-            color = minorTicksColor
+            color = Color.BLACK
             strokeWidth = SECOND_TICK_STROKE_WIDTH
             isAntiAlias = true
             style = Paint.Style.STROKE
@@ -265,10 +382,16 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
             isAntiAlias = true
             textSize = TEXT_SIZE
             textAlign = Align.CENTER
+            style = Paint.Style.FILL
+        }
+
+        hourBorderTextPaint = Paint().apply {
+            color = Color.BLACK
+            strokeWidth = SECOND_TICK_STROKE_WIDTH + 2f
+            isAntiAlias = true
+            textSize = TEXT_SIZE + 2f
+            textAlign = Align.CENTER
             style = Paint.Style.STROKE
-            setShadowLayer(
-                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
-            )
         }
     }
 
@@ -277,53 +400,80 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
             hourPaint.color = Color.WHITE
             minutePaint.color = Color.WHITE
             secondPaint.color = Color.WHITE
-            tickAndCirclePaint.color = Color.WHITE
+            tickAndCirclePaint.color = ticksColor
 
             hourPaint.isAntiAlias = false
+            hourBorderPaint.isAntiAlias = false
             minutePaint.isAntiAlias = false
+            minuteBorderPaint.isAntiAlias = false
             secondPaint.isAntiAlias = false
+            secondBorderPaint.isAntiAlias = false
+            secondBackBorderPaint.isAntiAlias = false
+            secondBackPaint.isAntiAlias = false
             tickAndCirclePaint.isAntiAlias = false
             minorTickPaint.isAntiAlias = false
             hourTextPaint.isAntiAlias = false
+            hourBorderTextPaint.isAntiAlias = false
 
             hourPaint.clearShadowLayer()
+            hourBorderPaint.clearShadowLayer()
             minutePaint.clearShadowLayer()
+            minuteBorderPaint.clearShadowLayer()
             secondPaint.clearShadowLayer()
+            secondBackBorderPaint.clearShadowLayer()
+            secondBackPaint.clearShadowLayer()
+            secondBorderPaint.clearShadowLayer()
             tickAndCirclePaint.clearShadowLayer()
             minorTickPaint.clearShadowLayer()
-            hourTextPaint.clearShadowLayer()
 
         } else {
             hourPaint.color = watchHandColor
             minutePaint.color = watchHandColor
             secondPaint.color = watchHandHighlightColor
-            tickAndCirclePaint.color = watchHandColor
-            minorTickPaint.color = minorTicksColor
+            tickAndCirclePaint.color = ticksColor
             hourTextPaint.color = watchHandColor
 
             hourPaint.isAntiAlias = true
+            hourBorderPaint.isAntiAlias = true
             minutePaint.isAntiAlias = true
+            minuteBorderPaint.isAntiAlias = true
             secondPaint.isAntiAlias = true
+            secondBorderPaint.isAntiAlias = true
+            secondBackBorderPaint.isAntiAlias = true
+            secondBackPaint.isAntiAlias = true
             tickAndCirclePaint.isAntiAlias = true
             minorTickPaint.isAntiAlias = true
             hourTextPaint.isAntiAlias = true
+            hourBorderPaint.isAntiAlias = true
 
             hourPaint.setShadowLayer(
+                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
+            )
+            hourBorderPaint.setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
             )
             minutePaint.setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
             )
+            minuteBorderPaint.setShadowLayer(
+                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
+            )
             secondPaint.setShadowLayer(
+                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
+            )
+            secondBorderPaint.setShadowLayer(
+                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
+            )
+            secondBackPaint.setShadowLayer(
+                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
+            )
+            secondBackBorderPaint.setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
             )
             tickAndCirclePaint.setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
             )
             minorTickPaint.setShadowLayer(
-                SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
-            )
-            hourTextPaint.setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
             )
         }

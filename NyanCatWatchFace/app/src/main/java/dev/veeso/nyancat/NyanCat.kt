@@ -1,4 +1,4 @@
-package dev.veeso.nyancat.watch
+package dev.veeso.nyancat
 
 import android.content.res.Resources
 import android.graphics.Bitmap

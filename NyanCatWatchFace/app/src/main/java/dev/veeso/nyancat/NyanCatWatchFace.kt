@@ -18,7 +18,6 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.util.Log
 import android.view.SurfaceHolder
 import dev.veeso.nyancat.watch.AnalogWatch
-import dev.veeso.nyancat.watch.NyanCat
 import dev.veeso.nyancat.watch.Watch
 import dev.veeso.nyancat.watch.analog.AnalogWatchConfiguration
 import java.lang.ref.WeakReference
@@ -80,8 +79,7 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
                 invalidate()
             }
         }
-
-        @SuppressLint("InflateParams")
+        
         override fun onCreate(holder: SurfaceHolder) {
             super.onCreate(holder)
 
