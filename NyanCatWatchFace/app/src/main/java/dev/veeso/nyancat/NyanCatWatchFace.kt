@@ -17,7 +17,6 @@ import android.support.wearable.watchface.WatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
 import android.util.Log
 import android.view.SurfaceHolder
-import android.view.View
 import dev.veeso.nyancat.watch.AnalogWatch
 import dev.veeso.nyancat.watch.NyanCat
 import dev.veeso.nyancat.watch.Watch
@@ -39,7 +38,8 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
     }
 
     private class EngineHandler(reference: NyanCatWatchFace.Engine) : Handler(Looper.myLooper()!!) {
-        private val mWeakReference: WeakReference<NyanCatWatchFace.Engine> = WeakReference(reference)
+        private val mWeakReference: WeakReference<NyanCatWatchFace.Engine> =
+            WeakReference(reference)
 
         override fun handleMessage(msg: Message) {
             val engine = mWeakReference.get()
@@ -54,7 +54,6 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
     inner class Engine : CanvasWatchFaceService.Engine() {
 
         private lateinit var calendar: Calendar
-        private lateinit var layout: View
         private lateinit var watch: Watch
         private lateinit var nyanCat: NyanCat
 
@@ -115,24 +114,26 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
         }
 
         private fun initializeNyanCat() {
-            nyanCat = NyanCat(resources, listOf(
-                R.drawable.nyancat_00,
-                R.drawable.nyancat_01,
-                R.drawable.nyancat_02,
-                R.drawable.nyancat_03,
-                R.drawable.nyancat_04,
-                R.drawable.nyancat_05,
-                R.drawable.nyancat_06,
-                R.drawable.nyancat_07,
-                R.drawable.nyancat_08,
-                R.drawable.nyancat_09,
-                R.drawable.nyancat_10,
-                R.drawable.nyancat_11,
-                R.drawable.nyancat_12,
-                R.drawable.nyancat_13,
-                R.drawable.nyancat_14,
-                R.drawable.nyancat_15,
-            ))
+            nyanCat = NyanCat(
+                resources, listOf(
+                    R.drawable.nyancat_00,
+                    R.drawable.nyancat_01,
+                    R.drawable.nyancat_02,
+                    R.drawable.nyancat_03,
+                    R.drawable.nyancat_04,
+                    R.drawable.nyancat_05,
+                    R.drawable.nyancat_06,
+                    R.drawable.nyancat_07,
+                    R.drawable.nyancat_08,
+                    R.drawable.nyancat_09,
+                    R.drawable.nyancat_10,
+                    R.drawable.nyancat_11,
+                    R.drawable.nyancat_12,
+                    R.drawable.nyancat_13,
+                    R.drawable.nyancat_14,
+                    R.drawable.nyancat_15,
+                )
+            )
             Log.d(TAG, "Nyan cat initialized")
         }
 
