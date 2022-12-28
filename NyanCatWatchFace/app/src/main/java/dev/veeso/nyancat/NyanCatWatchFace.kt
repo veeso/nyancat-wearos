@@ -19,6 +19,7 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.View
 import dev.veeso.nyancat.watch.AnalogWatch
+import dev.veeso.nyancat.watch.NyanCat
 import dev.veeso.nyancat.watch.Watch
 import dev.veeso.nyancat.watch.analog.AnalogWatchConfiguration
 import java.lang.ref.WeakReference
@@ -55,6 +56,7 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
         private lateinit var calendar: Calendar
         private lateinit var layout: View
         private lateinit var watch: Watch
+        private lateinit var nyanCat: NyanCat
 
         private var registeredTimeZoneReceiver = false
         private var muteMode: Boolean = false
@@ -93,6 +95,7 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
             calendar = Calendar.getInstance()
 
             initializeBackground()
+            initializeNyanCat()
             initializeWatch()
         }
 
@@ -101,7 +104,7 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
                 color = Color.BLACK
             }
             backgroundBitmap =
-                BitmapFactory.decodeResource(resources, R.drawable.watchface_service_bg)
+                BitmapFactory.decodeResource(resources, R.drawable.nyancat_00)
             Log.d(TAG, "Background initialized")
 
         }
@@ -109,6 +112,28 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
         private fun initializeWatch() {
             watch = AnalogWatch(AnalogWatchConfiguration(), backgroundBitmap)
             Log.d(TAG, "Clock initialized")
+        }
+
+        private fun initializeNyanCat() {
+            nyanCat = NyanCat(resources, listOf(
+                R.drawable.nyancat_00,
+                R.drawable.nyancat_01,
+                R.drawable.nyancat_02,
+                R.drawable.nyancat_03,
+                R.drawable.nyancat_04,
+                R.drawable.nyancat_05,
+                R.drawable.nyancat_06,
+                R.drawable.nyancat_07,
+                R.drawable.nyancat_08,
+                R.drawable.nyancat_09,
+                R.drawable.nyancat_10,
+                R.drawable.nyancat_11,
+                R.drawable.nyancat_12,
+                R.drawable.nyancat_13,
+                R.drawable.nyancat_14,
+                R.drawable.nyancat_15,
+            ))
+            Log.d(TAG, "Nyan cat initialized")
         }
 
 
@@ -167,6 +192,7 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
             centerY = height / 2f
 
             watch.onSurfaceChanged(width, height)
+            nyanCat.onSurfaceChanged(width)
 
             val scale = width.toFloat() / backgroundBitmap.width.toFloat()
 
@@ -221,6 +247,8 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
             calendar.timeInMillis = now
             // draw background
             drawBackground(canvas)
+            // nyan cat
+            nyanCat.draw(canvas)
             // render watch
             watch.render(canvas, calendar, ambient)
         }
