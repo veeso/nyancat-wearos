@@ -5,26 +5,21 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.Align
+import android.graphics.Typeface
 import androidx.palette.graphics.Palette
 import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
 import dev.veeso.nyancat.watch.analog.AnalogWatchConfiguration
 
-private const val HOUR_STROKE_WIDTH = 8f
-private const val HOUR_BORDER_STROKE_WIDTH = HOUR_STROKE_WIDTH + 8f
-private const val MINUTE_STROKE_WIDTH = HOUR_STROKE_WIDTH
-private const val MINUTE_BORDER_STROKE_WIDTH = MINUTE_STROKE_WIDTH + 6f
-private const val SECOND_TICK_STROKE_WIDTH = 2f
-private const val SECOND_BACK_TICK_STROKE_WIDTH = 4f
-private const val SHADOW_RADIUS = 6f
-private const val CENTER_GAP_AND_CIRCLE_RADIUS = 5f
-private const val TEXT_SIZE = 24f
-private const val TEXT_Y_PADDING = TEXT_SIZE / 4f
-
-class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) : Watch {
+class AnalogWatch(
+    configuration: AnalogWatchConfiguration,
+    background: Bitmap,
+    watchFont: Typeface
+) : Watch {
 
     private val configuration: AnalogWatchConfiguration
+    private val watchFont: Typeface
 
     private var centerX: Float = 0F
     private var centerY: Float = 0F
@@ -50,7 +45,6 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
     private lateinit var secondBorderPaint: Paint
     private lateinit var secondBackBorderPaint: Paint
     private lateinit var tickAndCirclePaint: Paint
-    private lateinit var circleBorderPaint: Paint
     private lateinit var minorTickPaint: Paint
     private lateinit var hourTextPaint: Paint
     private lateinit var hourBorderTextPaint: Paint
@@ -69,6 +63,8 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
             Color.rgb(101, 50, 252),
         )
         ticksColor = Color.rgb(252, 2, 4)
+
+        this.watchFont = watchFont
 
         Palette.from(background).generate {
             it?.let {
@@ -383,6 +379,7 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
             textSize = TEXT_SIZE
             textAlign = Align.CENTER
             style = Paint.Style.FILL
+            typeface = watchFont
         }
 
         hourBorderTextPaint = Paint().apply {
@@ -392,6 +389,7 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
             textSize = TEXT_SIZE + 2f
             textAlign = Align.CENTER
             style = Paint.Style.STROKE
+            typeface = watchFont
         }
     }
 
@@ -493,6 +491,19 @@ class AnalogWatch(configuration: AnalogWatchConfiguration, background: Bitmap) :
         secondBackHandLength = (centerX * 0.125).toFloat()
         minuteHandLength = (centerX * 0.875).toFloat()
         hourHandLength = (centerX * 0.425).toFloat()
+    }
+
+    companion object {
+        const val HOUR_STROKE_WIDTH = 8f
+        const val HOUR_BORDER_STROKE_WIDTH = HOUR_STROKE_WIDTH + 8f
+        const val MINUTE_STROKE_WIDTH = HOUR_STROKE_WIDTH
+        const val MINUTE_BORDER_STROKE_WIDTH = MINUTE_STROKE_WIDTH + 6f
+        const val SECOND_TICK_STROKE_WIDTH = 2f
+        const val SECOND_BACK_TICK_STROKE_WIDTH = 4f
+        const val SHADOW_RADIUS = 6f
+        const val CENTER_GAP_AND_CIRCLE_RADIUS = 5f
+        const val TEXT_SIZE = 24f
+        const val TEXT_Y_PADDING = 16f
     }
 
 }

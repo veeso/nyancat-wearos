@@ -2,7 +2,6 @@
 
 package dev.veeso.nyancat
 
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -107,7 +106,7 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
         }
 
         private fun initializeWatch() {
-            watch = AnalogWatch(AnalogWatchConfiguration(), backgroundBitmap)
+            watch = AnalogWatch(AnalogWatchConfiguration(), backgroundBitmap, resources.getFont(R.font.press_start_2p))
             Log.d(TAG, "Clock initialized")
         }
 
