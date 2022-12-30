@@ -159,27 +159,9 @@ class AnalogWatch(
          */
         canvas.save()
 
-        canvas.rotate(hoursRotation, centerX, centerY)
-
-        // hour
-        canvas.drawLine(
-            centerX,
-            centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
-            centerX,
-            centerY - hourHandLength,
-            hourBorderPaint
-        )
-        canvas.drawLine(
-            centerX,
-            centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
-            centerX,
-            centerY - hourHandLength,
-            hourPaint
-        )
-
+        // minute
         canvas.rotate(minutesRotation - hoursRotation, centerX, centerY)
 
-        // minute
         canvas.drawLine(
             centerX,
             centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
@@ -193,6 +175,24 @@ class AnalogWatch(
             centerX,
             centerY - minuteHandLength,
             minutePaint
+        )
+
+        // hours
+        canvas.rotate(hoursRotation, centerX, centerY)
+
+        canvas.drawLine(
+            centerX,
+            centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
+            centerX,
+            centerY - hourHandLength,
+            hourBorderPaint
+        )
+        canvas.drawLine(
+            centerX,
+            centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
+            centerX,
+            centerY - hourHandLength,
+            hourPaint
         )
 
         /*

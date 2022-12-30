@@ -327,7 +327,7 @@ class NyanCatWatchFace : CanvasWatchFaceService() {
     }
 
     companion object {
-        const val ANALOG_INTERACTIVE_UPDATE_RATE_MS = 25
+        const val ANALOG_INTERACTIVE_UPDATE_RATE_MS = 50
         const val DEFAULT_UPDATE_RATE_MS = 1000
         const val TAG = "NyanCatWatchFace"
     }
