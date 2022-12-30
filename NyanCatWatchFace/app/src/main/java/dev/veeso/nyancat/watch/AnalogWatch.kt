@@ -160,7 +160,7 @@ class AnalogWatch(
         canvas.save()
 
         // minute
-        canvas.rotate(minutesRotation - hoursRotation, centerX, centerY)
+        canvas.rotate(minutesRotation, centerX, centerY)
 
         canvas.drawLine(
             centerX,
@@ -178,7 +178,7 @@ class AnalogWatch(
         )
 
         // hours
-        canvas.rotate(hoursRotation, centerX, centerY)
+        canvas.rotate(hoursRotation - minutesRotation, centerX, centerY)
 
         canvas.drawLine(
             centerX,
