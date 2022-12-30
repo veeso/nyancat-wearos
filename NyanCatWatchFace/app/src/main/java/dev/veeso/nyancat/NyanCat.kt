@@ -40,16 +40,11 @@ class NyanCat(resources: Resources, frames: List<Int>) {
     }
 
     private fun tick() {
-        currentFrameTick++
-        if (currentFrameTick == TICK_STEP) {
-            currentFrameTick = 0
-            currentFrame = ++currentFrame % frames.size
-        }
+        currentFrame = ++currentFrame % frames.size
     }
 
     companion object {
         const val TAG: String = "NyanCat"
-        const val TICK_STEP: Int = 2
     }
 
 }
