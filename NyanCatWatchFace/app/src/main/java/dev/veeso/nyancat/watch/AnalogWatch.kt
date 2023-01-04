@@ -33,7 +33,6 @@ class AnalogWatch(
     private var watchHandBorderColor: Int = 0
     private var ticksColor: Int = 0
     private var minorTicksColor: List<Int>
-    private var watchHandHighlightColor: Int = 0
     private var watchHandShadowColor: Int = 0
 
     private lateinit var hourPaint: Paint
@@ -48,6 +47,9 @@ class AnalogWatch(
     private lateinit var minorTickPaint: Paint
     private lateinit var hourTextPaint: Paint
     private lateinit var hourBorderTextPaint: Paint
+    private lateinit var calendarTextPaint: Paint
+    private lateinit var calendarBorderTextPaint: Paint
+    private var calendarTextY: Float = 0f
 
     init {
         this.configuration = configuration
@@ -59,7 +61,7 @@ class AnalogWatch(
             Color.rgb(252, 152, 4),
             Color.rgb(252, 254, 4),
             Color.rgb(52, 254, 4),
-            // Color.rgb(4, 150, 252),
+            Color.rgb(4, 150, 252),
             Color.rgb(101, 50, 252),
         )
         ticksColor = Color.rgb(252, 2, 4)
@@ -68,7 +70,6 @@ class AnalogWatch(
 
         Palette.from(background).generate {
             it?.let {
-                watchHandHighlightColor = it.getVibrantColor(Color.RED)
                 watchHandShadowColor = it.getDarkMutedColor(Color.BLACK)
                 onAmbientModeChanged(false)
             }
@@ -81,6 +82,21 @@ class AnalogWatch(
         val innerTickRadius = centerX - 10
         val outerTickRadius = centerX
         val textTickRadius = centerX - TEXT_SIZE - 8
+        // calendar text
+        val date = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH))
+        canvas.drawText(
+            date,
+            centerX,
+            calendarTextY,
+            calendarBorderTextPaint
+        )
+        canvas.drawText(
+            date,
+            centerX,
+            calendarTextY,
+            calendarTextPaint
+        )
+
         // hours ticks
         for (tickIndex in 0..11) {
             val tickRot = (tickIndex.toDouble() * Math.PI * 2.0 / 12).toFloat()
@@ -146,6 +162,8 @@ class AnalogWatch(
          */
         val seconds =
             calendar.get(Calendar.SECOND) + calendar.get(Calendar.MILLISECOND) / 1000f
+
+        val secondHandColor = minorTicksColor[(seconds % minorTicksColor.size).toInt()]
         val secondsRotation = seconds * 6f
 
         val minutes = calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) / 60f
@@ -202,6 +220,10 @@ class AnalogWatch(
         if (!ambientMode && configuration.showSecondsHand) {
             canvas.rotate(secondsRotation - minutesRotation, centerX, centerY)
 
+
+            secondPaint.color = secondHandColor
+            secondBackPaint.color = secondHandColor
+
             canvas.drawLine(
                 centerX,
                 centerY - CENTER_GAP_AND_CIRCLE_RADIUS,
@@ -248,6 +270,8 @@ class AnalogWatch(
             )
 
         }
+        tickAndCirclePaint.color = secondHandColor
+
         canvas.drawCircle(
             centerX,
             centerY,
@@ -262,7 +286,6 @@ class AnalogWatch(
     private fun initializeWatchFace() {
         /* Set defaults for colors */
         watchHandColor = Color.WHITE
-        watchHandHighlightColor = Color.RED
         watchHandShadowColor = Color.BLACK
 
         hourPaint = Paint().apply {
@@ -309,7 +332,7 @@ class AnalogWatch(
         }
 
         secondPaint = Paint().apply {
-            color = watchHandHighlightColor
+            color = Color.WHITE
             strokeWidth = SECOND_TICK_STROKE_WIDTH
             isAntiAlias = true
             strokeCap = Paint.Cap.SQUARE
@@ -331,7 +354,7 @@ class AnalogWatch(
         }
 
         secondBackPaint = Paint().apply {
-            color = watchHandHighlightColor
+            color = Color.WHITE
             strokeWidth = SECOND_BACK_TICK_STROKE_WIDTH
             isAntiAlias = true
             strokeCap = Paint.Cap.SQUARE
@@ -343,7 +366,7 @@ class AnalogWatch(
 
         secondBackBorderPaint = Paint().apply {
             color = Color.BLACK
-            strokeWidth = SECOND_BACK_TICK_STROKE_WIDTH + 4f
+            strokeWidth = SECOND_BACK_TICK_STROKE_WIDTH + 6f
             isAntiAlias = true
             strokeCap = Paint.Cap.SQUARE
             style = Paint.Style.STROKE
@@ -391,6 +414,26 @@ class AnalogWatch(
             style = Paint.Style.STROKE
             typeface = watchFont
         }
+
+        calendarTextPaint = Paint().apply {
+            color = watchHandColor
+            strokeWidth = SECOND_TICK_STROKE_WIDTH
+            isAntiAlias = true
+            textSize = CALENDAR_TEXT_SIZE
+            textAlign = Align.CENTER
+            style = Paint.Style.FILL
+            typeface = watchFont
+        }
+
+        calendarBorderTextPaint = Paint().apply {
+            color = Color.BLACK
+            strokeWidth = SECOND_TICK_STROKE_WIDTH + 2f
+            isAntiAlias = true
+            textSize = CALENDAR_TEXT_SIZE + 2f
+            textAlign = Align.CENTER
+            style = Paint.Style.STROKE
+            typeface = watchFont
+        }
     }
 
     override fun onAmbientModeChanged(ambient: Boolean) {
@@ -412,6 +455,8 @@ class AnalogWatch(
             minorTickPaint.isAntiAlias = false
             hourTextPaint.isAntiAlias = false
             hourBorderTextPaint.isAntiAlias = false
+            calendarBorderTextPaint.isAntiAlias = false
+            calendarTextPaint.isAntiAlias = false
 
             hourPaint.clearShadowLayer()
             hourBorderPaint.clearShadowLayer()
@@ -423,13 +468,17 @@ class AnalogWatch(
             secondBorderPaint.clearShadowLayer()
             tickAndCirclePaint.clearShadowLayer()
             minorTickPaint.clearShadowLayer()
+            calendarBorderTextPaint.clearShadowLayer()
+            calendarTextPaint.clearShadowLayer()
 
         } else {
             hourPaint.color = watchHandColor
             minutePaint.color = watchHandColor
-            secondPaint.color = watchHandHighlightColor
+            secondPaint.color = Color.WHITE
             tickAndCirclePaint.color = ticksColor
             hourTextPaint.color = watchHandColor
+            calendarTextPaint.color = watchHandColor
+            calendarBorderTextPaint.color = Color.BLACK
 
             hourPaint.isAntiAlias = true
             hourBorderPaint.isAntiAlias = true
@@ -443,6 +492,8 @@ class AnalogWatch(
             minorTickPaint.isAntiAlias = true
             hourTextPaint.isAntiAlias = true
             hourBorderPaint.isAntiAlias = true
+            calendarTextPaint.isAntiAlias = true
+            calendarBorderTextPaint.isAntiAlias = true
 
             hourPaint.setShadowLayer(
                 SHADOW_RADIUS, 0f, 0f, watchHandShadowColor
@@ -491,6 +542,8 @@ class AnalogWatch(
         secondBackHandLength = (centerX * 0.125).toFloat()
         minuteHandLength = (centerX * 0.875).toFloat()
         hourHandLength = (centerX * 0.425).toFloat()
+
+        calendarTextY = centerY + (centerY / 2) + (CALENDAR_TEXT_SIZE / 2)
     }
 
     companion object {
@@ -503,6 +556,7 @@ class AnalogWatch(
         const val SHADOW_RADIUS = 6f
         const val CENTER_GAP_AND_CIRCLE_RADIUS = 5f
         const val TEXT_SIZE = 24f
+        const val CALENDAR_TEXT_SIZE = 36f
         const val TEXT_Y_PADDING = 16f
     }
 
